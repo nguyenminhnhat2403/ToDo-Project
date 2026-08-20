@@ -1,34 +1,114 @@
-package com.example.todo;
-import com.example.todo.todo.Todo;
-import com.example.todo.todo.TodoService;
-import org.springframework.web.bind.annotation.*;
+package com.example.todo.todo;
 
+import com.example.todo.todo.dto.CreateTodoRequest;
+import com.example.todo.todo.dto.TodoResponse;
+import com.example.todo.todo.dto.UpdateTodoRequest;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
-@RequestMapping(path = "api/v1/todos")
+@RequestMapping("/api/v1/todos")
+@CrossOrigin(origins = "http://localhost:5173")
 public class TodoController {
 
     private final TodoService todoService;
 
-    public TodoController(TodoService todoService) {
+    public TodoController(
+            TodoService todoService
+    ) {
         this.todoService = todoService;
     }
+    // GET ALL
 
     @GetMapping
-    public List<Todo> getTodos() {
+    public List<TodoResponse> getTodos() {
+
         return todoService.getTodos();
     }
 
-    @PostMapping
-    public void addTodo(@RequestBody Todo todo) {
-        todoService.addTodo(todo);
+    // GET BY ID
+
+        @GetMapping("/{id}")
+        public TodoResponse getTodoById(
+                @PathVariable Long id
+        ) {
+
+            return todoService.getTodoById(id);
+        }
+
+    // =====================================================
+    // GET BY USER
+    // =====================================================
+
+    @GetMapping("/user/{userId}")
+    public List<TodoResponse> getTodosByUser(
+            @PathVariable Long userId
+    ) {
+
+        return todoService.getTodosByUser(
+                userId
+        );
     }
 
-    @DeleteMapping(path = "{todoId}")
-    public void deleteTodo(
-            @PathVariable("todoId") Long todoId
+
+    // HISTORY
+
+
+    @GetMapping("/user/{userId}/history")
+    public List<TodoResponse> getTodosByDate(
+            @PathVariable Long userId,
+            @RequestParam LocalDate date
     ) {
-        todoService.deleteTodo(todoId);
+
+        return todoService.getTodosByDate(
+                userId,
+                date
+        );
+    }
+    // CREATE
+
+
+    @PostMapping
+    public TodoResponse createTodo(
+            @Valid
+            @RequestBody
+            CreateTodoRequest request
+    ) {
+
+        return todoService.createTodo(
+                request
+        );
+    }
+
+    // =====================================================
+    // UPDATE
+    // =====================================================
+
+    @PutMapping("/{id}")
+    public TodoResponse updateTodo(
+            @PathVariable Long id,
+            @Valid
+            @RequestBody
+            UpdateTodoRequest request
+    ) {
+
+        return todoService.updateTodo(
+                id,
+                request
+        );
+    }
+
+    // =====================================================
+    // DELETE
+    // =====================================================
+
+    @DeleteMapping("/{id}")
+    public void deleteTodo(
+            @PathVariable Long id
+    ) {
+
+        todoService.deleteTodo(id);
     }
 }

@@ -1,26 +1,34 @@
 package com.example.todo.todo;
 
+import com.example.todo.user.User;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table
+@Table(name = "todo")
 public class Todo {
 
     @Id
-    @SequenceGenerator(
-            name = "todo_sequence",
-            sequenceName = "todo_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "todo_sequence"
-    )
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
+
     private String description;
-    private Boolean completed;
+
+    @Column(nullable = false)
+    private boolean completed = false;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    private LocalDateTime completedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     public Todo() {
     }
@@ -28,11 +36,19 @@ public class Todo {
     public Todo(
             String title,
             String description,
-            Boolean completed
+            User user
     ) {
         this.title = title;
         this.description = description;
-        this.completed = completed;
+        this.user = user;
+        this.completed = false;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 
     public Long getId() {
@@ -47,8 +63,20 @@ public class Todo {
         return description;
     }
 
-    public Boolean getCompleted() {
+    public boolean isCompleted() {
         return completed;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getCompletedAt() {
+        return completedAt;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public void setTitle(String title) {
@@ -59,7 +87,19 @@ public class Todo {
         this.description = description;
     }
 
-    public void setCompleted(Boolean completed) {
+    public void setCompleted(boolean completed) {
         this.completed = completed;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setCompletedAt(LocalDateTime completedAt) {
+        this.completedAt = completedAt;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

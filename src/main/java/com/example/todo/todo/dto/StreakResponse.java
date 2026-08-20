@@ -1,4 +1,8 @@
 package com.example.todo.todo.dto;
 
-public class StreakResponse {
+public record StreakResponse(
+        int currentStreak,
+        int longestStreak,
+        boolean completedToday
+) {
 }
