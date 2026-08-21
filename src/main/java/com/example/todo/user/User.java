@@ -2,6 +2,7 @@ package com.example.todo.user;
 
 import com.example.todo.todo.Todo;
 import jakarta.persistence.*;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +21,18 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column (nullable = false)
+    private String password;
+
     @OneToMany(
             mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+
     private List<Todo> todos = new ArrayList<>();
+
+
 
     public User() {
     }
@@ -57,5 +64,13 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

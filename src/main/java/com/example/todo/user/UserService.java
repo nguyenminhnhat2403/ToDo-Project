@@ -1,9 +1,10 @@
 package com.example.todo.user;
 
-import com.example.todo.user.dto.CreateUserRequest;
-import com.example.todo.user.dto.UpdateUserRequest;
-import com.example.todo.user.dto.UserDTOMapper;
-import com.example.todo.user.dto.UserResponse;
+import com.example.todo.user.dto.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,12 +15,20 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserDTOMapper userDTOMapper;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+
+
     public UserService(
             UserRepository userRepository,
-            UserDTOMapper userDTOMapper
+            UserDTOMapper userDTOMapper,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager
     ) {
         this.userRepository = userRepository;
         this.userDTOMapper = userDTOMapper;
+        this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     public UserResponse createUser(CreateUserRequest request) {
@@ -89,6 +98,32 @@ public class UserService {
                 );
 
         userRepository.delete(user);
+    }
+    public LoginResponse login(String email, String password) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
+
+        return new LoginResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getName()
+        );
+    }
+    public User register(RegisterRequest request) {
+
+        User user = new User();
+
+        user.setEmail(request.getEmail());
+        user.setName(request.getName());
+
+        user.setPassword(
+                passwordEncoder.encode(request.getPassword())
+        );
+
+        return userRepository.save(user);
     }
 
 //    private UserResponse toResponse(User user) {

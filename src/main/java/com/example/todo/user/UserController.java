@@ -2,9 +2,7 @@ package com.example.todo.user;
 
 import com.example.todo.todo.StreakService;
 import com.example.todo.todo.dto.StreakResponse;
-import com.example.todo.user.dto.CreateUserRequest;
-import com.example.todo.user.dto.UpdateUserRequest;
-import com.example.todo.user.dto.UserResponse;
+import com.example.todo.user.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -67,5 +65,9 @@ public class UserController {
     ) {
         return streakService.getStreak(userId);
     }
+
+    // Login
+
+
 
 }
