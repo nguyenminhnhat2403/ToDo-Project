@@ -1,179 +1,362 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 
-const API_URL = "http://localhost:8080/api/v1";
-const USER_ID = 1;
+const API = "http://localhost:8080";
+const TODO_API = `${API}/api/v1/todos`;
 
 function App() {
-  // =========================
-  // STATE
-  // =========================
+  // ============================================================
+  // AUTH
+  // ============================================================
 
-  const [todos, setTodos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [token, setToken] = useState(
+      localStorage.getItem("token")
+  );
 
-  const [streak, setStreak] = useState({
-    currentStreak: 0,
-    longestStreak: 0,
-    completedToday: false,
+  const [isRegister, setIsRegister] = useState(false);
+
+  const [loginForm, setLoginForm] = useState({
+    email: "",
+    password: "",
   });
 
-  // New task
-  const [showNewTask, setShowNewTask] = useState(false);
+  const [registerForm, setRegisterForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [authError, setAuthError] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+
+  // ============================================================
+  // TODO STATE
+  // ============================================================
+
+  const [todos, setTodos] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
 
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
   });
 
-  // Give up
-  const [showGiveUp, setShowGiveUp] = useState(false);
-  const [motivationAudio, setMotivationAudio] = useState(null);
-  const [selectedTask, setSelectedTask] = useState(null);
+  const [showNewTask, setShowNewTask] = useState(false);
 
-  // History
-  const [showHistory, setShowHistory] = useState(false);
-  const [historyDate, setHistoryDate] = useState("");
-  const [historyTodos, setHistoryTodos] = useState([]);
+  const [editingTask, setEditingTask] = useState(null);
+  const [showEditTask, setShowEditTask] = useState(false);
 
-  // Task menu
   const [openMenuId, setOpenMenuId] = useState(null);
 
-  // Edit
-  const [showEditTask, setShowEditTask] = useState(false);
-  const [editingTask, setEditingTask] = useState(null);
+  // ============================================================
+  // MOTIVATION
+  // ============================================================
 
-  // =========================
-  // GET STREAK
-  // =========================
+  const [showMotivation, setShowMotivation] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+  const audioRef = useRef(null);
 
-  const fetchStreak = async () => {
-    try {
-      const response = await fetch(
-          `${API_URL}/users/${USER_ID}/streak`
-      );
+  // ============================================================
+  // HISTORY
+  // ============================================================
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch streak");
-      }
+  const [showHistory, setShowHistory] = useState(false);
 
-      const data = await response.json();
+  // ============================================================
+  // HELPERS
+  // ============================================================
 
-      setStreak(data);
-    } catch (error) {
-      console.error("Streak error:", error);
+  function clearMessages() {
+    setError("");
+    setMessage("");
+  }
+
+  async function readResponse(response) {
+    const text = await response.text();
+
+    if (!text) {
+      return null;
     }
-  };
 
-  // =========================
-  // GET HISTORY
-  // =========================
-
-  const fetchHistory = async (date) => {
     try {
-      const response = await fetch(
-          `${API_URL}/todos/user/${USER_ID}/history?date=${date}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch history");
-      }
-
-      const data = await response.json();
-
-      setHistoryTodos(data);
-    } catch (error) {
-      console.error("History error:", error);
-      setHistoryTodos([]);
+      return JSON.parse(text);
+    } catch {
+      return { message: text };
     }
-  };
+  }
 
-  const openHistory = () => {
-    const today = new Date()
-        .toISOString()
-        .split("T")[0];
+  function getErrorMessage(data, fallback) {
+    return (
+        data?.message ||
+        data?.error ||
+        fallback
+    );
+  }
 
-    setHistoryDate(today);
-    fetchHistory(today);
-    setShowHistory(true);
-  };
+  function logout() {
+    localStorage.removeItem("token");
+    setToken(null);
+    setTodos([]);
+    setSelectedTask(null);
+    closeMotivation();
+    clearMessages();
+  }
 
-  // =========================
-  // GET TODOS
-  // =========================
+  // ============================================================
+  // REGISTER
+  // ============================================================
 
-  const fetchTodos = async () => {
-    try {
-      setLoading(true);
-      setError("");
-
-      const response = await fetch(
-          `${API_URL}/todos/user/${USER_ID}`
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch todos");
-      }
-
-      const data = await response.json();
-
-      setTodos(data);
-    } catch (error) {
-      console.error(error);
-      setError("Cannot connect to backend.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // =========================
-  // INITIAL LOAD
-  // =========================
-
-  useEffect(() => {
-    fetchTodos();
-    fetchStreak();
-  }, []);
-
-  // =========================
-  // CREATE TODO
-  // =========================
-
-  const createTodo = async (e) => {
+  async function handleRegister(e) {
     e.preventDefault();
 
-    if (!newTask.title.trim()) {
-      return;
-    }
+    setAuthError("");
+    setAuthLoading(true);
 
     try {
-      setError("");
-
       const response = await fetch(
-          `${API_URL}/todos`,
+          `${API}/api/auth/register`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              title: newTask.title,
-              description: newTask.description,
-              userId: USER_ID,
+              name: registerForm.name.trim(),
+              email: registerForm.email.trim(),
+              password: registerForm.password,
             }),
           }
       );
 
+      const data = await readResponse(response);
+
       if (!response.ok) {
-        throw new Error("Failed to create todo");
+        throw new Error(
+            getErrorMessage(
+                data,
+                "Could not create your account."
+            )
+        );
       }
 
-      const createdTodo = await response.json();
+      setIsRegister(false);
 
-      setTodos((prev) => [
-        ...prev,
-        createdTodo,
+      setLoginForm({
+        email: registerForm.email,
+        password: "",
+      });
+
+      setRegisterForm({
+        name: "",
+        email: "",
+        password: "",
+      });
+
+      setAuthError("");
+
+    } catch (err) {
+      console.error("Register error:", err);
+
+      setAuthError(
+          err.message === "Failed to fetch"
+              ? "Cannot connect to the server. Make sure Spring Boot is running on port 8080."
+              : err.message
+      );
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  // ============================================================
+  // LOGIN
+  // ============================================================
+
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    setAuthError("");
+    setAuthLoading(true);
+
+    try {
+      const response = await fetch(
+          `${API}/api/auth/login`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: loginForm.email.trim(),
+              password: loginForm.password,
+            }),
+          }
+      );
+
+      const data = await readResponse(response);
+
+      if (!response.ok) {
+        throw new Error(
+            getErrorMessage(
+                data,
+                "Invalid email or password."
+            )
+        );
+      }
+
+      if (!data?.token) {
+        throw new Error(
+            "Login succeeded, but the server did not return a JWT."
+        );
+      }
+
+      localStorage.setItem("token", data.token);
+      setToken(data.token);
+
+      setLoginForm({
+        email: "",
+        password: "",
+      });
+
+    } catch (err) {
+      console.error("Login error:", err);
+
+      setAuthError(
+          err.message === "Failed to fetch"
+              ? "Cannot connect to the server. Make sure Spring Boot is running on port 8080."
+              : err.message
+      );
+    } finally {
+      setAuthLoading(false);
+    }
+  }
+
+  // ============================================================
+  // LOAD TODOS
+  // ============================================================
+
+  async function loadTodos() {
+    const currentToken = localStorage.getItem("token");
+
+    console.log("JWT:", currentToken);
+
+    if (!currentToken) {
+      setError("No JWT token found.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError("");
+
+      const response = await fetch(
+          "http://localhost:8080/api/v1/todos",
+          {
+            method: "GET",
+            headers: {
+              "Authorization": `Bearer ${currentToken}`,
+              "Content-Type": "application/json",
+            },
+          }
+      );
+
+      console.log("STATUS:", response.status);
+      console.log(
+          "CONTENT-TYPE:",
+          response.headers.get("content-type")
+      );
+
+      const text = await response.text();
+
+      console.log("BACKEND RESPONSE:", text);
+
+      if (!response.ok) {
+        throw new Error(
+            `HTTP ${response.status}: ${text || "empty response"}`
+        );
+      }
+
+      const data = text ? JSON.parse(text) : [];
+
+      setTodos(data);
+
+    } catch (err) {
+      console.error("LOAD TODOS ERROR:", err);
+
+      if (err.message === "Failed to fetch") {
+        setError(
+            "Browser could not reach Spring Boot. Check CORS and port 8080."
+        );
+      } else {
+        setError(err.message);
+      }
+
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (token) {
+      loadTodos();
+    }
+  }, [token]);
+
+  // ============================================================
+  // CREATE TODO
+  // ============================================================
+
+  async function createTodo(e) {
+    e.preventDefault();
+
+    if (!newTask.title.trim()) {
+      setError("Task title is required.");
+      return;
+    }
+
+    const currentToken = localStorage.getItem("token");
+
+    try {
+      clearMessages();
+
+      const response = await fetch(
+          TODO_API,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${currentToken}`,
+            },
+            body: JSON.stringify({
+              title: newTask.title.trim(),
+              description: newTask.description.trim(),
+            }),
+          }
+      );
+
+      const data = await readResponse(response);
+
+      if (response.status === 401 || response.status === 403) {
+        logout();
+        throw new Error(
+            "Your session has expired. Please login again."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+            getErrorMessage(
+                data,
+                `Failed to create task (${response.status}).`
+            )
+        );
+      }
+
+      setTodos((previous) => [
+        ...previous,
+        data,
       ]);
 
       setNewTask({
@@ -182,175 +365,228 @@ function App() {
       });
 
       setShowNewTask(false);
-    } catch (error) {
-      console.error(error);
-      setError("Could not create task.");
-    }
-  };
+      setMessage("Task created successfully.");
 
-  // =========================
-  // COMPLETE TODO
-  // =========================
+    } catch (err) {
+      console.error("Create todo error:", err);
 
-  const completeTodo = async (todo) => {
-    try {
-      setError("");
-
-      const response = await fetch(
-          `${API_URL}/todos/${todo.id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              title: todo.title,
-              description: todo.description,
-              completed: !todo.completed,
-            }),
-          }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to update todo");
+      if (err.message === "Failed to fetch") {
+        setError(
+            "Cannot connect to the backend. Make sure Spring Boot is running on port 8080."
+        );
+      } else {
+        setError(err.message);
       }
-
-      const updatedTodo = await response.json();
-
-      setTodos((prev) =>
-          prev.map((item) =>
-              item.id === updatedTodo.id
-                  ? updatedTodo
-                  : item
-          )
-      );
-
-      setOpenMenuId(null);
-
-      await fetchStreak();
-    } catch (error) {
-      console.error(error);
-      setError("Could not update task.");
     }
-  };
+  }
 
-  // =========================
-  // DELETE TODO
-  // =========================
-
-  const deleteTodo = async (id) => {
-    const confirmed = window.confirm(
-        "Are you sure you want to delete this task?"
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      setError("");
-
-      const response = await fetch(
-          `${API_URL}/todos/${id}`,
-          {
-            method: "DELETE",
-          }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete todo");
-      }
-
-      setTodos((prev) =>
-          prev.filter(
-              (todo) => todo.id !== id
-          )
-      );
-
-      setOpenMenuId(null);
-
-      await fetchStreak();
-    } catch (error) {
-      console.error(error);
-      setError("Could not delete task.");
-    }
-  };
-
-  // =========================
-  // OPEN EDIT
-  // =========================
-
-  const handleEdit = (todo) => {
-    setEditingTask({
-      id: todo.id,
-      title: todo.title,
-      description: todo.description || "",
-      completed: todo.completed,
-    });
-
-    setOpenMenuId(null);
-    setShowEditTask(true);
-  };
-
-  // =========================
+  // ============================================================
   // UPDATE TODO
-  // =========================
+  // ============================================================
 
-  const updateTodo = async (e) => {
+  async function updateTodo(e) {
     e.preventDefault();
 
-    if (!editingTask.title.trim()) {
+    if (!editingTask?.title?.trim()) {
+      setError("Task title is required.");
       return;
     }
 
+    const currentToken = localStorage.getItem("token");
+
     try {
-      setError("");
+      clearMessages();
 
       const response = await fetch(
-          `${API_URL}/todos/${editingTask.id}`,
+          `${TODO_API}/${editingTask.id}`,
           {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
+              Authorization: `Bearer ${currentToken}`,
             },
             body: JSON.stringify({
-              title: editingTask.title,
-              description: editingTask.description,
-              completed: editingTask.completed,
+              title: editingTask.title.trim(),
+              description:
+                  editingTask.description?.trim() || "",
+              completed: Boolean(editingTask.completed),
             }),
           }
       );
 
-      if (!response.ok) {
-        throw new Error("Failed to update todo");
+      const data = await readResponse(response);
+
+      if (response.status === 401 || response.status === 403) {
+        logout();
+        throw new Error(
+            "Your session has expired. Please login again."
+        );
       }
 
-      const updatedTodo = await response.json();
+      if (!response.ok) {
+        throw new Error(
+            getErrorMessage(
+                data,
+                `Failed to update task (${response.status}).`
+            )
+        );
+      }
 
-      setTodos((prev) =>
-          prev.map((todo) =>
-              todo.id === updatedTodo.id
-                  ? updatedTodo
+      setTodos((previous) =>
+          previous.map((todo) =>
+              todo.id === data.id
+                  ? data
                   : todo
           )
       );
 
       setEditingTask(null);
       setShowEditTask(false);
-    } catch (error) {
-      console.error(error);
-      setError("Could not edit task.");
+      setOpenMenuId(null);
+      setMessage("Task updated successfully.");
+
+    } catch (err) {
+      console.error("Update todo error:", err);
+
+      setError(err.message);
     }
-  };
+  }
 
-  // =========================
-  // GIVE UP
-  // =========================
+  // ============================================================
+  // COMPLETE TODO
+  // ============================================================
 
-  const giveUp = (todo) => {
+  async function toggleTodo(todo) {
+    const currentToken = localStorage.getItem("token");
+
+    try {
+      clearMessages();
+
+      const response = await fetch(
+          `${TODO_API}/${todo.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${currentToken}`,
+            },
+            body: JSON.stringify({
+              title: todo.title,
+              description: todo.description || "",
+              completed: !todo.completed,
+            }),
+          }
+      );
+
+      const data = await readResponse(response);
+
+      if (response.status === 401 || response.status === 403) {
+        logout();
+        throw new Error(
+            "Your session has expired. Please login again."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+            getErrorMessage(
+                data,
+                `Failed to update task (${response.status}).`
+            )
+        );
+      }
+
+      setTodos((previous) =>
+          previous.map((item) =>
+              item.id === todo.id
+                  ? data
+                  : item
+          )
+      );
+
+    } catch (err) {
+      console.error("Toggle todo error:", err);
+      setError(err.message);
+    }
+  }
+
+  // ============================================================
+  // DELETE TODO
+  // ============================================================
+
+  async function deleteTodo(id) {
+    if (
+        !window.confirm(
+            "Are you sure you want to delete this task?"
+        )
+    ) {
+      return;
+    }
+
+    const currentToken = localStorage.getItem("token");
+
+    try {
+      clearMessages();
+
+      const response = await fetch(
+          `${TODO_API}/${id}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${currentToken}`,
+            },
+          }
+      );
+
+      const data = await readResponse(response);
+
+      if (response.status === 401 || response.status === 403) {
+        logout();
+        throw new Error(
+            "Your session has expired. Please login again."
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(
+            getErrorMessage(
+                data,
+                `Failed to delete task (${response.status}).`
+            )
+        );
+      }
+
+      setTodos((previous) =>
+          previous.filter(
+              (todo) => todo.id !== id
+          )
+      );
+
+    } catch (err) {
+      console.error("Delete todo error:", err);
+      setError(err.message);
+    }
+  }
+
+  // ============================================================
+  // MOTIVATION AUDIO
+  // ============================================================
+
+  function stopMotivationAudio() {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      audioRef.current = null;
+    }
+
+    setIsAudioPlaying(false);
+  }
+
+  function openMotivation(todo) {
+    stopMotivationAudio();
+
     setSelectedTask(todo);
-    setOpenMenuId(null);
-    setShowGiveUp(true);
+    setShowMotivation(true);
 
     const audioFiles = [
       "/audio/motivation-1.mp3",
@@ -360,39 +596,62 @@ function App() {
 
     const randomAudio =
         audioFiles[
-            Math.floor(Math.random() * audioFiles.length)
+            Math.floor(
+                Math.random() * audioFiles.length
+            )
             ];
 
     const audio = new Audio(randomAudio);
 
+    audioRef.current = audio;
     audio.volume = 0.8;
 
-    setMotivationAudio(audio);
+    audio.onended = () => {
+      setIsAudioPlaying(false);
+    };
 
-    audio.play().catch((error) => {
-      console.error("Audio playback failed:", error);
-    });
-  };
-  const getBackToWork = () => {
-    if (motivationAudio) {
-      motivationAudio.pause();
-      motivationAudio.currentTime = 0;
-    }
+    audio.onerror = () => {
+      audioRef.current = null;
+      setIsAudioPlaying(false);
 
-    setMotivationAudio(null);
-    setShowGiveUp(false);
+      setError(
+          "Audio file not found. Put the motivation mp3 files inside frontend/public/audio/."
+      );
+    };
+
+    // Start the motivation immediately when Give Up is clicked.
+    audio
+        .play()
+        .then(() => {
+          setIsAudioPlaying(true);
+        })
+        .catch((err) => {
+          console.error("Could not autoplay motivation audio:", err);
+          setIsAudioPlaying(false);
+
+          setError(
+              "The browser blocked autoplay for this audio."
+          );
+        });
+  }
+
+  function closeMotivation() {
+    stopMotivationAudio();
+
     setSelectedTask(null);
-  };
+    setShowMotivation(false);
+  }
 
-  // =========================
-  // STATS
-  // =========================
+  // ============================================================
+  // STATISTICS
+  // ============================================================
 
   const totalTasks = todos.length;
 
-  const completedTasks = todos.filter(
-      (todo) => todo.completed
-  ).length;
+  const completedTasks =
+      todos.filter(
+          (todo) => todo.completed
+      ).length;
 
   const remainingTasks =
       totalTasks - completedTasks;
@@ -404,14 +663,223 @@ function App() {
               (completedTasks / totalTasks) * 100
           );
 
-  // =========================
-  // RENDER
-  // =========================
+  // ============================================================
+  // AUTH SCREEN
+  // ============================================================
+
+  if (!token) {
+    return (
+        <div className="auth-page">
+          <div className="auth-glow" />
+
+          <div className="auth-card">
+
+            <div className="auth-logo">
+              <div className="auth-logo-icon">
+                ✓
+              </div>
+
+              <span>FOCUS</span>
+            </div>
+
+            <div className="auth-heading">
+
+              <div className="auth-eyebrow">
+                YOUR WORKSPACE
+              </div>
+
+              <h1>
+                {isRegister
+                    ? "Create your account."
+                    : "Welcome back."}
+              </h1>
+
+              <p>
+                {isRegister
+                    ? "Start building better habits today."
+                    : "Sign in to continue your work."}
+              </p>
+
+            </div>
+
+            {authError && (
+                <div className="auth-error">
+                  {authError}
+                </div>
+            )}
+
+            {isRegister ? (
+
+                <form
+                    className="auth-form"
+                    onSubmit={handleRegister}
+                >
+
+                  <label>
+                    Full name
+                  </label>
+
+                  <input
+                      type="text"
+                      placeholder="Your name"
+                      value={registerForm.name}
+                      onChange={(e) =>
+                          setRegisterForm({
+                            ...registerForm,
+                            name: e.target.value,
+                          })
+                      }
+                      required
+                  />
+
+                  <label>
+                    Email
+                  </label>
+
+                  <input
+                      type="email"
+                      placeholder="you@example.com"
+                      value={registerForm.email}
+                      onChange={(e) =>
+                          setRegisterForm({
+                            ...registerForm,
+                            email: e.target.value,
+                          })
+                      }
+                      required
+                  />
+
+                  <label>
+                    Password
+                  </label>
+
+                  <input
+                      type="password"
+                      placeholder="Create a password"
+                      value={registerForm.password}
+                      onChange={(e) =>
+                          setRegisterForm({
+                            ...registerForm,
+                            password: e.target.value,
+                          })
+                      }
+                      required
+                  />
+
+                  <button
+                      className="auth-submit"
+                      type="submit"
+                      disabled={authLoading}
+                  >
+                    {authLoading
+                        ? "Creating account..."
+                        : "Create account"}
+                  </button>
+
+                  <div className="auth-switch">
+
+                <span>
+                  Already have an account?
+                </span>
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                          setIsRegister(false);
+                          setAuthError("");
+                        }}
+                    >
+                      Sign in
+                    </button>
+
+                  </div>
+
+                </form>
+
+            ) : (
+
+                <form
+                    className="auth-form"
+                    onSubmit={handleLogin}
+                >
+
+                  <label>
+                    Email
+                  </label>
+
+                  <input
+                      type="email"
+                      placeholder="you@example.com"
+                      value={loginForm.email}
+                      onChange={(e) =>
+                          setLoginForm({
+                            ...loginForm,
+                            email: e.target.value,
+                          })
+                      }
+                      required
+                  />
+
+                  <label>
+                    Password
+                  </label>
+
+                  <input
+                      type="password"
+                      placeholder="Your password"
+                      value={loginForm.password}
+                      onChange={(e) =>
+                          setLoginForm({
+                            ...loginForm,
+                            password: e.target.value,
+                          })
+                      }
+                      required
+                  />
+
+                  <button
+                      className="auth-submit"
+                      type="submit"
+                      disabled={authLoading}
+                  >
+                    {authLoading
+                        ? "Signing in..."
+                        : "Sign in"}
+                  </button>
+
+                  <div className="auth-switch">
+
+                <span>
+                  Don't have an account?
+                </span>
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                          setIsRegister(true);
+                          setAuthError("");
+                        }}
+                    >
+                      Register
+                    </button>
+
+                  </div>
+
+                </form>
+
+            )}
+
+          </div>
+        </div>
+    );
+  }
+
+  // ============================================================
+  // MAIN APP
+  // ============================================================
 
   return (
       <div className="app">
-
-        {/* ================= SIDEBAR ================= */}
 
         <aside className="sidebar">
 
@@ -425,51 +893,82 @@ function App() {
 
           <nav className="navigation">
 
-            <button className="nav-item active">
+            <button
+                className="nav-item active"
+                type="button"
+            >
               <span>▣</span>
               My Tasks
             </button>
 
             <button
                 className="nav-item"
-                onClick={openHistory}
+                type="button"
+                onClick={() =>
+                    setShowHistory(true)
+                }
             >
               <span>◷</span>
               History
             </button>
 
-            <button className="nav-item">
-              <span>♬</span>
+            <button
+                className="nav-item"
+                type="button"
+                onClick={() => {
+                  if (todos.length === 0) {
+                    setError(
+                        "Create a task first."
+                    );
+                    return;
+                  }
+
+                  const target =
+                      todos.find(
+                          (todo) => !todo.completed
+                      ) || todos[0];
+
+                  openMotivation(target);
+                }}
+            >
+              <span>♫</span>
               Motivation
             </button>
 
           </nav>
 
+          <button
+              className="nav-item logout-button"
+              type="button"
+              onClick={logout}
+          >
+            <span>↪</span>
+            Logout
+          </button>
+
           <div className="sidebar-bottom">
 
             <div className="user-avatar">
-              N
+              F
             </div>
 
             <div>
+
               <div className="user-name">
-                Nguyen Minh Nhat
+                Focus User
               </div>
 
               <div className="user-role">
-                Developer
+                Authenticated user
               </div>
+
             </div>
 
           </div>
 
         </aside>
 
-        {/* ================= MAIN ================= */}
-
         <main className="main">
-
-          {/* TOP BAR */}
 
           <div className="top-bar">
 
@@ -491,6 +990,7 @@ function App() {
 
             <button
                 className="new-task-button"
+                type="button"
                 onClick={() =>
                     setShowNewTask(true)
                 }
@@ -501,54 +1001,49 @@ function App() {
 
           </div>
 
-          {/* ERROR */}
-
           {error && (
               <div className="error-message">
                 {error}
               </div>
           )}
 
-          {/* ================= STATS ================= */}
+          {message && (
+              <div className="success-message">
+                {message}
+              </div>
+          )}
 
           <section className="stats">
 
             <div className="stat-card streak-card">
-
             <span className="stat-label">
               Current streak
             </span>
 
               <strong>
-                🔥 {streak.currentStreak}
+                🔥 {completedTasks}
               </strong>
 
               <span className="streak-text">
-              {streak.currentStreak === 1
-                  ? "day"
-                  : "days"}
+              completed
             </span>
-
             </div>
 
             <div className="stat-card">
-
             <span className="stat-label">
               Best streak
             </span>
 
               <strong>
-                🏆 {streak.longestStreak}
+                🏆 {completedTasks}
               </strong>
 
               <span className="streak-text">
               personal best
             </span>
-
             </div>
 
             <div className="stat-card">
-
             <span className="stat-label">
               Total tasks
             </span>
@@ -556,11 +1051,9 @@ function App() {
               <strong>
                 {totalTasks}
               </strong>
-
             </div>
 
             <div className="stat-card">
-
             <span className="stat-label">
               Completed
             </span>
@@ -568,11 +1061,9 @@ function App() {
               <strong>
                 {completedTasks}
               </strong>
-
             </div>
 
             <div className="stat-card">
-
             <span className="stat-label">
               Remaining
             </span>
@@ -580,11 +1071,9 @@ function App() {
               <strong>
                 {remainingTasks}
               </strong>
-
             </div>
 
             <div className="stat-card progress-card">
-
             <span className="stat-label">
               Progress
             </span>
@@ -594,28 +1083,22 @@ function App() {
               </strong>
 
               <div className="progress-bar">
-
                 <div
                     className="progress-value"
                     style={{
                       width: `${progress}%`,
                     }}
                 />
-
               </div>
-
             </div>
 
           </section>
-
-          {/* ================= TASK SECTION ================= */}
 
           <section className="tasks-section">
 
             <div className="section-header">
 
               <div>
-
                 <h2>
                   Today's Tasks
                 </h2>
@@ -626,205 +1109,202 @@ function App() {
                       ? "task"
                       : "tasks"}
               </span>
-
               </div>
 
             </div>
 
-            {/* LOADING */}
+            {loading ? (
 
-            {loading && (
                 <div className="loading">
                   Loading your tasks...
                 </div>
-            )}
 
-            {/* EMPTY */}
+            ) : todos.length === 0 ? (
 
-            {!loading &&
-                todos.length === 0 && (
+                <div className="empty-state">
 
-                    <div className="empty-state">
+                  <div className="empty-icon">
+                    ✓
+                  </div>
 
-                      <div className="empty-icon">
-                        ✓
+                  <h3>
+                    No tasks yet
+                  </h3>
+
+                  <p>
+                    Create your first task
+                    and start making progress.
+                  </p>
+
+                  <button
+                      className="create-empty-button"
+                      type="button"
+                      onClick={() =>
+                          setShowNewTask(true)
+                      }
+                  >
+                    Create Task
+                  </button>
+
+                </div>
+
+            ) : (
+
+                <div className="todo-list">
+
+                  {todos.map((todo) => (
+
+                      <div
+                          className={`todo-card ${
+                              todo.completed
+                                  ? "completed"
+                                  : ""
+                          }`}
+                          key={todo.id}
+                      >
+
+                        <button
+                            className={`custom-checkbox ${
+                                todo.completed
+                                    ? "checked"
+                                    : ""
+                            }`}
+                            type="button"
+                            onClick={() =>
+                                toggleTodo(todo)
+                            }
+                        >
+                          {todo.completed
+                              ? "✓"
+                              : ""}
+                        </button>
+
+                        <div className="todo-content">
+
+                          <h3>
+                            {todo.title}
+                          </h3>
+
+                          <p>
+                            {todo.description ||
+                                "No description"}
+                          </p>
+
+                        </div>
+
+                        <div className="todo-status">
+
+                          {todo.completed ? (
+
+                              <span className="status completed-status">
+                        Completed
+                      </span>
+
+                          ) : (
+
+                              <span className="status progress-status">
+                        In progress
+                      </span>
+
+                          )}
+
+                        </div>
+
+                        <div className="task-menu-wrapper">
+
+                          <button
+                              className="delete-button"
+                              type="button"
+                              onClick={() =>
+                                  setOpenMenuId(
+                                      openMenuId === todo.id
+                                          ? null
+                                          : todo.id
+                                  )
+                              }
+                          >
+                            ⋮
+                          </button>
+
+                          {openMenuId === todo.id && (
+
+                              <div className="task-dropdown">
+
+                                {!todo.completed && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                          toggleTodo(todo);
+                                          setOpenMenuId(null);
+                                        }}
+                                    >
+                                      ✓ Complete
+                                    </button>
+                                )}
+
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingTask({
+                                        id: todo.id,
+                                        title: todo.title,
+                                        description:
+                                            todo.description || "",
+                                        completed:
+                                        todo.completed,
+                                      });
+
+                                      setShowEditTask(true);
+                                      setOpenMenuId(null);
+                                    }}
+                                >
+                                  ✏ Edit
+                                </button>
+
+                                {!todo.completed && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                          openMotivation(todo);
+                                          setOpenMenuId(null);
+                                        }}
+                                    >
+                                      🔥 Give Up
+                                    </button>
+                                )}
+
+                                <button
+                                    className="danger"
+                                    type="button"
+                                    onClick={() => {
+                                      setOpenMenuId(null);
+                                      deleteTodo(todo.id);
+                                    }}
+                                >
+                                  🗑 Delete
+                                </button>
+
+                              </div>
+
+                          )}
+
+                        </div>
+
                       </div>
 
-                      <h3>
-                        No tasks yet
-                      </h3>
+                  ))}
 
-                      <p>
-                        Create your first task
-                        and get started.
-                      </p>
+                </div>
 
-                      <button
-                          className="create-empty-button"
-                          onClick={() =>
-                              setShowNewTask(true)
-                          }
-                      >
-                        Create Task
-                      </button>
-
-                    </div>
-
-                )}
-
-            {/* TODO LIST */}
-
-            {!loading &&
-                todos.length > 0 && (
-
-                    <div className="todo-list">
-
-                      {todos.map((todo) => (
-
-                          <div
-                              className={`todo-card ${
-                                  todo.completed
-                                      ? "completed"
-                                      : ""
-                              }`}
-                              key={todo.id}
-                          >
-
-                            {/* CHECKBOX */}
-
-                            <button
-                                className={`custom-checkbox ${
-                                    todo.completed
-                                        ? "checked"
-                                        : ""
-                                }`}
-                                onClick={() =>
-                                    completeTodo(todo)
-                                }
-                                aria-label="Complete task"
-                            >
-                              {todo.completed && "✓"}
-                            </button>
-
-                            {/* CONTENT */}
-
-                            <div className="todo-content">
-
-                              <h3>
-                                {todo.title}
-                              </h3>
-
-                              <p>
-                                {todo.description ||
-                                    "No description"}
-                              </p>
-
-                            </div>
-
-                            {/* STATUS */}
-
-                            <div className="todo-status">
-
-                              {todo.completed ? (
-
-                                  <span className="status completed-status">
-                          Completed
-                        </span>
-
-                              ) : (
-
-                                  <span className="status progress-status">
-                          In progress
-                        </span>
-
-                              )}
-
-                            </div>
-
-                            {/* ACTION MENU */}
-
-                            <div className="task-menu-wrapper">
-
-                              <button
-                                  className="delete-button"
-                                  onClick={() =>
-                                      setOpenMenuId(
-                                          openMenuId === todo.id
-                                              ? null
-                                              : todo.id
-                                      )
-                                  }
-                                  title="Task options"
-                              >
-                                ⋮
-                              </button>
-
-                              {openMenuId === todo.id && (
-
-                                  <div className="task-dropdown">
-
-                                    {!todo.completed && (
-
-                                        <button
-                                            onClick={() =>
-                                                completeTodo(todo)
-                                            }
-                                        >
-                                          ✓ Complete
-                                        </button>
-
-                                    )}
-
-                                    <button
-                                        onClick={() =>
-                                            handleEdit(todo)
-                                        }
-                                    >
-                                      ✏ Edit
-                                    </button>
-
-                                    {!todo.completed && (
-
-                                        <button
-                                            onClick={() =>
-                                                giveUp(todo)
-                                            }
-                                        >
-                                          × Give Up
-                                        </button>
-
-                                    )}
-
-                                    <button
-                                        className="danger"
-                                        onClick={() =>
-                                            deleteTodo(todo.id)
-                                        }
-                                    >
-                                      🗑 Delete
-                                    </button>
-
-                                  </div>
-
-                              )}
-
-                            </div>
-
-                          </div>
-
-                      ))}
-
-                    </div>
-
-                )}
+            )}
 
           </section>
 
         </main>
 
-        {/* ================================================= */}
-        {/* NEW TASK MODAL */}
-        {/* ================================================= */}
+        {/* ========================================================
+          NEW TASK MODAL
+      ======================================================== */}
 
         {showNewTask && (
 
@@ -844,6 +1324,7 @@ function App() {
 
                 <button
                     className="modal-close"
+                    type="button"
                     onClick={() =>
                         setShowNewTask(false)
                     }
@@ -860,8 +1341,7 @@ function App() {
                 </h2>
 
                 <p className="modal-description">
-                  What are you going to
-                  accomplish?
+                  What are you going to accomplish?
                 </p>
 
                 <form onSubmit={createTodo}>
@@ -877,7 +1357,8 @@ function App() {
                       onChange={(e) =>
                           setNewTask({
                             ...newTask,
-                            title: e.target.value,
+                            title:
+                            e.target.value,
                           })
                       }
                       autoFocus
@@ -902,8 +1383,8 @@ function App() {
                   <div className="modal-actions">
 
                     <button
-                        type="button"
                         className="cancel-button"
+                        type="button"
                         onClick={() =>
                             setShowNewTask(false)
                         }
@@ -912,8 +1393,8 @@ function App() {
                     </button>
 
                     <button
-                        type="submit"
                         className="create-button"
+                        type="submit"
                     >
                       Create Task
                     </button>
@@ -928,9 +1409,9 @@ function App() {
 
         )}
 
-        {/* ================================================= */}
-        {/* EDIT TASK MODAL */}
-        {/* ================================================= */}
+        {/* ========================================================
+          EDIT MODAL
+      ======================================================== */}
 
         {showEditTask && editingTask && (
 
@@ -950,6 +1431,7 @@ function App() {
 
                 <button
                     className="modal-close"
+                    type="button"
                     onClick={() =>
                         setShowEditTask(false)
                     }
@@ -981,7 +1463,8 @@ function App() {
                       onChange={(e) =>
                           setEditingTask({
                             ...editingTask,
-                            title: e.target.value,
+                            title:
+                            e.target.value,
                           })
                       }
                       autoFocus
@@ -992,7 +1475,9 @@ function App() {
                   </label>
 
                   <textarea
-                      value={editingTask.description}
+                      value={
+                        editingTask.description
+                      }
                       onChange={(e) =>
                           setEditingTask({
                             ...editingTask,
@@ -1005,8 +1490,8 @@ function App() {
                   <div className="modal-actions">
 
                     <button
-                        type="button"
                         className="cancel-button"
+                        type="button"
                         onClick={() => {
                           setEditingTask(null);
                           setShowEditTask(false);
@@ -1016,8 +1501,8 @@ function App() {
                     </button>
 
                     <button
-                        type="submit"
                         className="create-button"
+                        type="submit"
                     >
                       Save Changes
                     </button>
@@ -1032,13 +1517,14 @@ function App() {
 
         )}
 
-        {/* ================================================= */}
-        {/* GIVE UP MODAL */}
-        {/* ================================================= */}
+        {/* ========================================================
+          MOTIVATION MODAL
+      ======================================================== */}
 
-        {showGiveUp && selectedTask && (
+        {showMotivation && selectedTask && (
 
             <div className="modal-overlay">
+
               <div
                   className="motivation-modal"
                   onClick={(e) =>
@@ -1070,31 +1556,24 @@ function App() {
                   </div>
 
                   <div>
-
                     <strong>
                       Motivation
                     </strong>
 
                     <span>
-                  Audio coming soon...
-                </span>
-
+                    {isAudioPlaying
+                        ? "Playing..."
+                        : "Motivation audio"}
+                  </span>
                   </div>
-
-                  <button
-                      className="play-button"
-                      disabled
-                  >
-                    ▶
-                  </button>
 
                 </div>
 
                 <div className="give-up-task">
 
-              <span>
-                You gave up on
-              </span>
+                <span>
+                  You gave up on
+                </span>
 
                   <strong>
                     {selectedTask.title}
@@ -1104,7 +1583,8 @@ function App() {
 
                 <button
                     className="back-to-work-button"
-                    onClick={getBackToWork}
+                    type="button"
+                    onClick={closeMotivation}
                 >
                   I'll get back to it
                 </button>
@@ -1115,9 +1595,9 @@ function App() {
 
         )}
 
-        {/* ================================================= */}
-        {/* HISTORY MODAL */}
-        {/* ================================================= */}
+        {/* ========================================================
+          HISTORY MODAL
+      ======================================================== */}
 
         {showHistory && (
 
@@ -1137,6 +1617,7 @@ function App() {
 
                 <button
                     className="modal-close"
+                    type="button"
                     onClick={() =>
                         setShowHistory(false)
                     }
@@ -1153,43 +1634,20 @@ function App() {
                 </h2>
 
                 <p className="modal-description">
-                  See what you worked on each day.
+                  Your current tasks and their status.
                 </p>
 
-                <div className="history-date">
+                {todos.length === 0 ? (
 
-                  <label>
-                    Select date
-                  </label>
+                    <div className="history-empty">
+                      No tasks yet.
+                    </div>
 
-                  <input
-                      type="date"
-                      value={historyDate}
-                      onChange={(e) => {
+                ) : (
 
-                        const date =
-                            e.target.value;
+                    <div className="history-list">
 
-                        setHistoryDate(date);
-
-                        fetchHistory(date);
-
-                      }}
-                  />
-
-                </div>
-
-                <div className="history-list">
-
-                  {historyTodos.length === 0 ? (
-
-                      <div className="history-empty">
-                        No tasks created on this day.
-                      </div>
-
-                  ) : (
-
-                      historyTodos.map((todo) => (
+                      {todos.map((todo) => (
 
                           <div
                               className="history-item"
@@ -1221,31 +1679,27 @@ function App() {
 
                             </div>
 
-                            <div>
+                            {todo.completed ? (
 
-                              {todo.completed ? (
+                                <span className="history-completed">
+                        Completed
+                      </span>
 
-                                  <span className="history-completed">
-                          Completed
-                        </span>
+                            ) : (
 
-                              ) : (
+                                <span className="history-pending">
+                        Incomplete
+                      </span>
 
-                                  <span className="history-pending">
-                          Incomplete
-                        </span>
-
-                              )}
-
-                            </div>
+                            )}
 
                           </div>
 
-                      ))
+                      ))}
 
-                  )}
+                    </div>
 
-                </div>
+                )}
 
               </div>
 

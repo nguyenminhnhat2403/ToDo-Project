@@ -63,6 +63,29 @@ public class TodoService {
     }
 
     // =====================================================
+    // GET CURRENT USER'S TODOS
+    // =====================================================
+
+    @Transactional(readOnly = true)
+    public List<TodoResponse> getTodosForUser(
+            String email
+    ) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "User not found"
+                        )
+                );
+
+        return todoRepository
+                .findByUserId(user.getId())
+                .stream()
+                .map(TodoDTOMapper::toResponse)
+                .toList();
+    }
+
+    // =====================================================
     // GET ALL TODOS
     // =====================================================
 
@@ -81,6 +104,7 @@ public class TodoService {
 
     @Transactional(readOnly = true)
     public TodoResponse getTodoById(Long id) {
+
         Todo todo = todoRepository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException(
@@ -117,19 +141,15 @@ public class TodoService {
                 .toList();
     }
 
-
+    // =====================================================
     // HISTORY
-
+    // =====================================================
 
     @Transactional(readOnly = true)
     public List<TodoResponse> getTodosByDate(
             Long userId,
             LocalDate date
     ) {
-
-
-        // 1. Kiểm tra User tồn tại
-
 
         if (!userRepository.existsById(userId)) {
 
@@ -140,37 +160,11 @@ public class TodoService {
             );
         }
 
-
-        // 2. Xác định thời điểm bắt đầu ngày
-
-
         LocalDateTime start =
                 date.atStartOfDay();
 
-        // Ví dụ:
-        //
-        // 2026-08-15
-        //
-        // =>
-        //
-        // 2026-08-15T00:00:00
-
-
-        // -----------------------------------------------
-        // 3. Xác định thời điểm cuối ngày
-        // -----------------------------------------------
-
         LocalDateTime end =
                 date.atTime(LocalTime.MAX);
-
-        // =>
-        //
-        // 2026-08-15T23:59:59.999999999
-
-
-        // -----------------------------------------------
-        // 4. Query database
-        // -----------------------------------------------
 
         List<Todo> todos =
                 todoRepository
@@ -179,11 +173,6 @@ public class TodoService {
                                 start,
                                 end
                         );
-
-
-        // -----------------------------------------------
-        // 5. Todo Entity -> TodoResponse DTO
-        // -----------------------------------------------
 
         return todos
                 .stream()
@@ -227,20 +216,12 @@ public class TodoService {
                 isCompleted
         );
 
-        // -----------------------------------------------
-        // false -> true
-        // -----------------------------------------------
-
         if (!wasCompleted && isCompleted) {
 
             todo.setCompletedAt(
                     LocalDateTime.now()
             );
         }
-
-        // -----------------------------------------------
-        // true -> false
-        // -----------------------------------------------
 
         if (wasCompleted && !isCompleted) {
 

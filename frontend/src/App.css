@@ -20,8 +20,10 @@
 
 body {
     margin: 0;
+
     min-width: 320px;
     min-height: 100vh;
+
     background:
             radial-gradient(
                     circle at 75% 10%,
@@ -41,9 +43,15 @@ button {
     cursor: pointer;
 }
 
+/* =========================================================
+   APP
+========================================================= */
+
 .app {
     min-height: 100vh;
+
     display: flex;
+
     background:
             radial-gradient(
                     circle at 70% 0%,
@@ -52,19 +60,22 @@ button {
             );
 }
 
-/* =========================================
+/* =========================================================
    SIDEBAR
-========================================= */
+========================================================= */
 
 .sidebar {
     width: 245px;
     min-height: 100vh;
+
     padding: 30px 20px;
 
-    border-right: 1px solid
-    rgba(255, 255, 255, 0.06);
+    border-right:
+            1px solid
+            rgba(255, 255, 255, 0.06);
 
-    background: rgba(10, 10, 17, 0.78);
+    background:
+            rgba(10, 10, 17, 0.78);
 
     display: flex;
     flex-direction: column;
@@ -76,12 +87,14 @@ button {
 .logo {
     display: flex;
     align-items: center;
+
     gap: 12px;
 
     padding: 4px 10px 35px;
 
     font-size: 18px;
     font-weight: 800;
+
     letter-spacing: 1px;
 }
 
@@ -112,6 +125,7 @@ button {
 .navigation {
     display: flex;
     flex-direction: column;
+
     gap: 8px;
 }
 
@@ -128,13 +142,14 @@ button {
 
     display: flex;
     align-items: center;
+
     gap: 13px;
 
     font-size: 14px;
+
     text-align: left;
 
-    transition:
-            0.2s ease;
+    transition: 0.2s ease;
 }
 
 .nav-item span {
@@ -157,23 +172,25 @@ button {
                     rgba(113, 60, 255, 0.2),
                     rgba(113, 60, 255, 0.08)
             );
+}
 
-    box-shadow:
-            inset 0 0 0 1px
-            rgba(143, 99, 255, 0.08);
+.logout-button {
+    margin-top: auto;
 }
 
 .sidebar-bottom {
-    margin-top: auto;
+    margin-top: 16px;
 
     padding: 16px 10px 4px;
 
     display: flex;
     align-items: center;
+
     gap: 12px;
 
-    border-top: 1px solid
-    rgba(255, 255, 255, 0.06);
+    border-top:
+            1px solid
+            rgba(255, 255, 255, 0.06);
 }
 
 .user-avatar {
@@ -209,9 +226,9 @@ button {
     font-size: 12px;
 }
 
-/* =========================================
+/* =========================================================
    MAIN
-========================================= */
+========================================================= */
 
 .main {
     width: min(1120px, 100%);
@@ -231,7 +248,8 @@ button {
 }
 
 .eyebrow,
-.modal-eyebrow {
+.modal-eyebrow,
+.auth-eyebrow {
     color: #8b55ff;
 
     font-size: 11px;
@@ -287,12 +305,6 @@ button {
             box-shadow 0.2s ease;
 }
 
-.new-task-button span {
-    margin-right: 8px;
-
-    font-size: 18px;
-}
-
 .new-task-button:hover {
     transform: translateY(-2px);
 
@@ -301,31 +313,52 @@ button {
             rgba(112, 57, 255, 0.42);
 }
 
-/* =========================================
-   ERROR
-========================================= */
+.new-task-button span {
+    margin-right: 8px;
 
-.error-message {
+    font-size: 18px;
+}
+
+/* =========================================================
+   MESSAGES
+========================================================= */
+
+.error-message,
+.success-message {
     margin-bottom: 20px;
 
     padding: 13px 16px;
 
-    border: 1px solid
-    rgba(255, 75, 75, 0.25);
-
     border-radius: 10px;
+
+    font-size: 13px;
+}
+
+.error-message {
+    border:
+            1px solid
+            rgba(255, 75, 75, 0.25);
 
     color: #ff9c9c;
 
     background:
             rgba(255, 60, 60, 0.08);
-
-    font-size: 13px;
 }
 
-/* =========================================
+.success-message {
+    border:
+            1px solid
+            rgba(76, 220, 145, 0.2);
+
+    color: #7ce6aa;
+
+    background:
+            rgba(54, 210, 127, 0.08);
+}
+
+/* =========================================================
    STATS
-========================================= */
+========================================================= */
 
 .stats {
     display: grid;
@@ -358,6 +391,7 @@ button {
 
     display: flex;
     flex-direction: column;
+
     justify-content: center;
 
     transition:
@@ -386,12 +420,17 @@ button {
     letter-spacing: -1px;
 }
 
+.streak-card strong {
+    color: #ffb74d;
+}
+
 .progress-card strong {
     color: #a87aff;
 }
 
 .progress-bar {
     width: 100%;
+
     height: 5px;
 
     margin-top: 12px;
@@ -419,9 +458,17 @@ button {
             width 0.5s ease;
 }
 
-/* =========================================
+.streak-text {
+    margin-top: 5px;
+
+    color: #6e697b;
+
+    font-size: 11px;
+}
+
+/* =========================================================
    TASK SECTION
-========================================= */
+========================================================= */
 
 .tasks-section {
     width: 100%;
@@ -429,6 +476,7 @@ button {
 
 .section-header {
     display: flex;
+
     justify-content: space-between;
 
     margin-bottom: 18px;
@@ -452,26 +500,28 @@ button {
 
 .todo-list {
     display: flex;
+
     flex-direction: column;
 
     gap: 12px;
 }
 
-/* =========================================
+/* =========================================================
    TODO CARD
-========================================= */
+========================================================= */
 
 .todo-card {
     position: relative;
 
     display: flex;
+
     align-items: center;
 
     gap: 18px;
 
     min-height: 105px;
 
-    padding: 20px 20px;
+    padding: 20px;
 
     border:
             1px solid
@@ -487,10 +537,8 @@ button {
             );
 
     transition:
-            transform 0.25s ease,
-            border-color 0.25s ease,
-            background 0.25s ease,
-            opacity 0.35s ease;
+            transform 0.2s ease,
+            border-color 0.2s ease;
 }
 
 .todo-card:hover {
@@ -498,31 +546,22 @@ button {
 
     border-color:
             rgba(137, 91, 255, 0.22);
-
-    background:
-            linear-gradient(
-                    135deg,
-                    rgba(25, 23, 38, 0.98),
-                    rgba(14, 14, 22, 0.98)
-            );
 }
 
 .todo-card.completed {
     opacity: 0.68;
-
-    border-color:
-            rgba(95, 231, 157, 0.12);
 }
 
-.todo-card.completed .todo-content h3 {
+.todo-card.completed
+.todo-content h3 {
     text-decoration: line-through;
 
     color: #777;
 }
 
-/* =========================================
+/* =========================================================
    CHECKBOX
-========================================= */
+========================================================= */
 
 .custom-checkbox {
     flex: 0 0 auto;
@@ -541,14 +580,14 @@ button {
     color: white;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
     font-size: 14px;
     font-weight: 900;
 
-    transition:
-            0.25s ease;
+    transition: 0.25s ease;
 }
 
 .custom-checkbox:hover {
@@ -572,28 +611,11 @@ button {
     box-shadow:
             0 0 20px
             rgba(122, 62, 255, 0.35);
-
-    animation:
-            check-pop 0.3s ease;
 }
 
-@keyframes check-pop {
-    0% {
-        transform: scale(0.7);
-    }
-
-    60% {
-        transform: scale(1.15);
-    }
-
-    100% {
-        transform: scale(1);
-    }
-}
-
-/* =========================================
+/* =========================================================
    TODO CONTENT
-========================================= */
+========================================================= */
 
 .todo-content {
     min-width: 180px;
@@ -617,9 +639,9 @@ button {
     font-size: 13px;
 }
 
-/* =========================================
+/* =========================================================
    STATUS
-========================================= */
+========================================================= */
 
 .todo-status {
     flex-shrink: 0;
@@ -635,6 +657,7 @@ button {
     border-radius: 100px;
 
     font-size: 11px;
+
     font-weight: 700;
 }
 
@@ -652,61 +675,14 @@ button {
             rgba(68, 220, 140, 0.1);
 }
 
-/* =========================================
-   ACTIONS
-========================================= */
+/* =========================================================
+   TASK MENU
+========================================================= */
 
-.todo-actions {
-    display: flex;
+.task-menu-wrapper {
+    position: relative;
 
-    align-items: center;
-
-    gap: 7px;
-}
-
-.complete-button,
-.give-up-button {
-    border: 0;
-
-    padding: 9px 12px;
-
-    border-radius: 9px;
-
-    font-size: 11px;
-    font-weight: 750;
-
-    transition:
-            0.2s ease;
-}
-
-.complete-button {
-    color: #bdf7d3;
-
-    background:
-            rgba(54, 210, 127, 0.09);
-}
-
-.complete-button:hover {
-    background:
-            rgba(54, 210, 127, 0.17);
-
-    transform: translateY(-1px);
-}
-
-.give-up-button {
-    color: #ff9d9d;
-
-    background:
-            rgba(255, 71, 71, 0.08);
-}
-
-.give-up-button:hover {
-    color: #ffb7b7;
-
-    background:
-            rgba(255, 71, 71, 0.16);
-
-    transform: translateY(-1px);
+    z-index: 20;
 }
 
 .delete-button {
@@ -722,9 +698,6 @@ button {
     background: transparent;
 
     font-size: 20px;
-
-    transition:
-            0.2s ease;
 }
 
 .delete-button:hover {
@@ -734,17 +707,72 @@ button {
             rgba(255, 255, 255, 0.06);
 }
 
-/* =========================================
+.task-dropdown {
+    position: absolute;
+
+    top: calc(100% + 8px);
+
+    right: 0;
+
+    width: 170px;
+
+    padding: 6px;
+
+    background: #181720;
+
+    border:
+            1px solid
+            rgba(255, 255, 255, 0.08);
+
+    border-radius: 14px;
+
+    box-shadow:
+            0 20px 50px
+            rgba(0, 0, 0, 0.5);
+
+    z-index: 100;
+}
+
+.task-dropdown button {
+    width: 100%;
+
+    padding: 10px 12px;
+
+    border: 0;
+
+    border-radius: 9px;
+
+    background: transparent;
+
+    color: #d7d3df;
+
+    text-align: left;
+
+    font-size: 13px;
+}
+
+.task-dropdown button:hover {
+    background:
+            rgba(255, 255, 255, 0.06);
+}
+
+.task-dropdown .danger {
+    color: #ff8d8d;
+}
+
+/* =========================================================
    EMPTY
-========================================= */
+========================================================= */
 
 .empty-state {
     min-height: 300px;
 
     display: flex;
+
     flex-direction: column;
 
     align-items: center;
+
     justify-content: center;
 
     text-align: center;
@@ -764,6 +792,7 @@ button {
     height: 55px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -813,9 +842,9 @@ button {
     color: #777285;
 }
 
-/* =========================================
+/* =========================================================
    MODAL
-========================================= */
+========================================================= */
 
 .modal-overlay {
     position: fixed;
@@ -835,19 +864,6 @@ button {
             rgba(3, 3, 7, 0.78);
 
     backdrop-filter: blur(10px);
-
-    animation:
-            fade-in 0.2s ease;
-}
-
-@keyframes fade-in {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
 }
 
 .modal {
@@ -873,27 +889,6 @@ button {
     box-shadow:
             0 30px 100px
             rgba(0, 0, 0, 0.65);
-
-    animation:
-            modal-up 0.25s ease;
-}
-
-@keyframes modal-up {
-    from {
-        opacity: 0;
-
-        transform:
-                translateY(15px)
-                scale(0.97);
-    }
-
-    to {
-        opacity: 1;
-
-        transform:
-                translateY(0)
-                scale(1);
-    }
 }
 
 .modal-close {
@@ -917,7 +912,8 @@ button {
     font-size: 20px;
 }
 
-.modal h2 {
+.modal h2,
+.history-modal h2 {
     margin: 10px 0 8px;
 
     font-size: 28px;
@@ -961,10 +957,6 @@ button {
 
     background:
             rgba(6, 6, 10, 0.75);
-
-    transition:
-            border-color 0.2s ease,
-            box-shadow 0.2s ease;
 }
 
 .modal input {
@@ -1029,15 +1021,11 @@ button {
                     #713cff,
                     #964cff
             );
-
-    box-shadow:
-            0 8px 25px
-            rgba(113, 60, 255, 0.25);
 }
 
-/* =========================================
-   MOTIVATION MODAL
-========================================= */
+/* =========================================================
+   MOTIVATION
+========================================================= */
 
 .motivation-modal {
     position: relative;
@@ -1065,9 +1053,6 @@ button {
     box-shadow:
             0 30px 100px
             rgba(0, 0, 0, 0.75);
-
-    animation:
-            modal-up 0.28s ease;
 }
 
 .motivation-icon {
@@ -1077,6 +1062,7 @@ button {
     margin: 0 auto 20px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -1086,10 +1072,6 @@ button {
             rgba(121, 57, 255, 0.13);
 
     font-size: 30px;
-
-    box-shadow:
-            0 0 45px
-            rgba(121, 57, 255, 0.12);
 }
 
 .motivation-modal h2 {
@@ -1138,6 +1120,7 @@ button {
     height: 40px;
 
     display: flex;
+
     align-items: center;
     justify-content: center;
 
@@ -1151,7 +1134,7 @@ button {
     font-size: 20px;
 }
 
-.motivation-card div:nth-child(2) {
+.motivation-card > div:nth-child(2) {
     display: flex;
 
     flex-direction: column;
@@ -1185,10 +1168,9 @@ button {
             rgba(126, 68, 255, 0.12);
 }
 
-.play-button:disabled {
-    opacity: 0.5;
-
-    cursor: not-allowed;
+.play-button:hover {
+    background:
+            rgba(126, 68, 255, 0.25);
 }
 
 .give-up-task {
@@ -1230,202 +1212,17 @@ button {
             );
 
     font-weight: 800;
-
-    box-shadow:
-            0 10px 30px
-            rgba(113, 60, 255, 0.24);
-
-    transition:
-            transform 0.2s ease;
 }
 
-.back-to-work-button:hover {
-    transform: translateY(-2px);
-}
-
-/* =========================================
-   RESPONSIVE
-========================================= */
-
-@media (max-width: 900px) {
-
-    .sidebar {
-        width: 190px;
-    }
-
-    .main {
-        padding: 40px 30px;
-    }
-
-    .stats {
-        grid-template-columns:
-      repeat(2, 1fr);
-    }
-
-    .todo-card {
-        flex-wrap: wrap;
-    }
-
-    .todo-status {
-        margin-left: 43px;
-    }
-
-    .todo-actions {
-        width: 100%;
-
-        margin-left: 43px;
-    }
-}
-
-@media (max-width: 650px) {
-
-    .app {
-        display: block;
-    }
-
-    .sidebar {
-        position: static;
-
-        width: 100%;
-        min-height: auto;
-
-        padding: 15px;
-
-        border-right: 0;
-        border-bottom: 1px solid
-        rgba(255, 255, 255, 0.06);
-    }
-
-    .logo {
-        padding: 0 5px 15px;
-    }
-
-    .navigation {
-        flex-direction: row;
-    }
-
-    .nav-item {
-        flex: 1;
-
-        justify-content: center;
-    }
-
-    .sidebar-bottom {
-        display: none;
-    }
-
-    .main {
-        padding: 30px 18px 70px;
-    }
-
-    .top-bar {
-        align-items: flex-start;
-        gap: 20px;
-    }
-
-    .top-bar h1 {
-        font-size: 34px;
-    }
-
-    .new-task-button {
-        padding: 12px 15px;
-    }
-
-    .new-task-button span {
-        margin: 0;
-    }
-
-    .stats {
-        grid-template-columns:
-      repeat(2, 1fr);
-    }
-
-    .stat-card {
-        min-height: 100px;
-    }
-
-    .todo-card {
-        align-items: flex-start;
-
-        padding: 17px;
-    }
-
-    .todo-content {
-        min-width: 0;
-    }
-
-    .todo-status {
-        margin-left: 43px;
-    }
-
-    .todo-actions {
-        margin-left: 43px;
-
-        flex-wrap: wrap;
-    }
-
-    .complete-button,
-    .give-up-button {
-        flex: 1;
-    }
-}
-
-@media (max-width: 450px) {
-
-    .navigation .nav-item {
-        font-size: 0;
-    }
-
-    .navigation .nav-item span {
-        font-size: 18px;
-    }
-
-    .stats {
-        grid-template-columns: 1fr 1fr;
-
-        gap: 8px;
-    }
-
-    .stat-card {
-        padding: 15px;
-    }
-
-    .stat-card strong {
-        font-size: 24px;
-    }
-
-    .top-bar {
-        flex-direction: column;
-    }
-
-    .new-task-button {
-        width: 100%;
-    }
-}
-/* =========================================
-   STREAK
-========================================= */
-
-.streak-text {
-    margin-top: 5px;
-
-    color: #6e697b;
-
-    font-size: 11px;
-}
-
-.streak-card strong {
-    color: #ffb74d;
-}
-
-/* =========================================
-   HISTORY MODAL
-========================================= */
+/* =========================================================
+   HISTORY
+========================================================= */
 
 .history-modal {
     position: relative;
 
     width: min(700px, 100%);
+
     max-height: 85vh;
 
     overflow-y: auto;
@@ -1448,45 +1245,6 @@ button {
     box-shadow:
             0 30px 100px
             rgba(0, 0, 0, 0.65);
-
-    animation:
-            modal-up 0.25s ease;
-}
-
-.history-date {
-    margin-bottom: 22px;
-}
-
-.history-date label {
-    display: block;
-
-    margin-bottom: 8px;
-
-    color: #aaa5b4;
-
-    font-size: 12px;
-
-    font-weight: 700;
-}
-
-.history-date input {
-    width: 100%;
-
-    height: 46px;
-
-    padding: 0 13px;
-
-    border:
-            1px solid
-            rgba(255, 255, 255, 0.08);
-
-    border-radius: 10px;
-
-    outline: none;
-
-    color: #fff;
-
-    background: #09090e;
 }
 
 .history-list {
@@ -1534,18 +1292,12 @@ button {
     border-radius: 8px;
 
     color: white;
-
-    font-size: 13px;
 }
 
 .history-check-done {
     border-color: #8b55ff;
 
     background: #713cff;
-
-    box-shadow:
-            0 0 15px
-            rgba(113, 60, 255, 0.25);
 }
 
 .history-content {
@@ -1608,379 +1360,377 @@ button {
 
     border-radius: 13px;
 }
-/* ========================================
-   TASK MENU
-======================================== */
 
-/* ========================================
-   TASK MENU
-======================================== */
+/* =========================================================
+   LOGIN / REGISTER
+========================================================= */
 
-/* Card bình thường */
-.todo-card {
+.auth-page {
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
     position: relative;
-    z-index: 1;
-    overflow: visible;
-}
-
-/* Card đang mở menu phải nằm trên các card khác */
-.todo-card:has(.task-dropdown) {
-    z-index: 9999;
-}
-
-/* Nút 3 chấm + dropdown */
-.task-menu-wrapper {
-    position: relative;
-    z-index: 10000;
-}
-
-/* Dropdown */
-.task-dropdown {
-    position: absolute;
-
-    top: calc(100% + 8px);
-    right: 0;
-
-    width: 170px;
-
-    padding: 6px;
-
-    background: #ffffff;
-
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
-
-    box-shadow:
-            0 20px 50px rgba(0, 0, 0, 0.25);
-
-    z-index: 10001;
 
     overflow: hidden;
 
-    animation: dropdownIn 0.16s ease-out;
+    background:
+            radial-gradient(
+                    circle at 50% 0%,
+                    rgba(113, 60, 255, 0.18),
+                    transparent 40%
+            ),
+            #07070c;
 }
 
-@keyframes dropdownIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px) scale(0.97);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-/* Dropdown buttons */
-.task-dropdown button {
-    width: 100%;
-
-    display: flex;
-    align-items: center;
-
-    gap: 10px;
-
-    padding: 10px 12px;
-
-    border: none;
-    border-radius: 9px;
-
-    background: transparent;
-
-    color: #334155;
-
-    font-size: 14px;
-    font-weight: 500;
-
-    text-align: left;
-
-    cursor: pointer;
-
-    transition:
-            background 0.15s ease,
-            color 0.15s ease;
-}
-
-.task-dropdown button:hover {
-    background: #f1f5f9;
-    color: #0f172a;
-}
-
-/* Delete */
-.task-dropdown button.danger {
-    color: #dc2626;
-}
-
-.task-dropdown button.danger:hover {
-    background: #fef2f2;
-    color: #b91c1c;
-}
-/* ========================================
-   DROPDOWN
-======================================== */
-
-.task-dropdown {
+.auth-glow {
     position: absolute;
 
-    top: calc(100% + 8px);
-    right: 0;
+    width: 500px;
+    height: 500px;
 
-    width: 170px;
+    border-radius: 50%;
 
-    padding: 6px;
+    background:
+            rgba(113, 60, 255, 0.08);
 
-    background: white;
+    filter: blur(100px);
 
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
+    pointer-events: none;
+}
+
+.auth-card {
+    position: relative;
+
+    z-index: 2;
+
+    width: min(440px, 100%);
+
+    padding: 42px;
+
+    border:
+            1px solid
+            rgba(255, 255, 255, 0.08);
+
+    border-radius: 24px;
+
+    background:
+            rgba(15, 15, 23, 0.92);
 
     box-shadow:
-            0 10px 25px rgba(15, 23, 42, 0.10),
-            0 4px 10px rgba(15, 23, 42, 0.06);
-
-    z-index: 100;
-
-    animation: dropdownIn 0.16s ease-out;
+            0 30px 100px
+            rgba(0, 0, 0, 0.55);
 }
 
-@keyframes dropdownIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px) scale(0.97);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-
-/* Dropdown buttons */
-
-.task-dropdown button {
-    width: 100%;
-
+.auth-logo {
     display: flex;
+
     align-items: center;
 
-    gap: 10px;
+    gap: 12px;
 
-    padding: 10px 12px;
+    font-weight: 800;
 
-    border: none;
-    border-radius: 9px;
+    letter-spacing: 1px;
+
+    margin-bottom: 42px;
+}
+
+.auth-logo-icon {
+    width: 40px;
+    height: 40px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #713cff,
+                    #a66dff
+            );
+
+    box-shadow:
+            0 8px 30px
+            rgba(116, 55, 255, 0.35);
+}
+
+.auth-heading {
+    margin-bottom: 30px;
+}
+
+.auth-heading h1 {
+    margin: 10px 0;
+
+    font-size: 34px;
+
+    letter-spacing: -1.5px;
+}
+
+.auth-heading p {
+    margin: 0;
+
+    color: #777285;
+
+    font-size: 14px;
+}
+
+.auth-error {
+    margin-bottom: 18px;
+
+    padding: 12px;
+
+    border:
+            1px solid
+            rgba(255, 75, 75, 0.25);
+
+    border-radius: 10px;
+
+    color: #ff9c9c;
+
+    background:
+            rgba(255, 60, 60, 0.08);
+
+    font-size: 13px;
+}
+
+.auth-form label {
+    display: block;
+
+    margin: 16px 0 8px;
+
+    color: #aaa5b4;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+.auth-form input {
+    width: 100%;
+
+    height: 50px;
+
+    padding: 0 15px;
+
+    border:
+            1px solid
+            rgba(255, 255, 255, 0.08);
+
+    border-radius: 11px;
+
+    outline: none;
+
+    color: white;
+
+    background:
+            rgba(6, 6, 10, 0.75);
+}
+
+.auth-form input:focus {
+    border-color: #8050ed;
+
+    box-shadow:
+            0 0 0 4px
+            rgba(128, 80, 237, 0.08);
+}
+
+.auth-submit {
+    width: 100%;
+
+    margin-top: 25px;
+
+    padding: 14px;
+
+    border: 0;
+
+    border-radius: 11px;
+
+    color: white;
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #713cff,
+                    #984eff
+            );
+
+    font-weight: 800;
+
+    box-shadow:
+            0 10px 30px
+            rgba(113, 60, 255, 0.25);
+}
+
+.auth-submit:disabled {
+    opacity: 0.6;
+
+    cursor: wait;
+}
+
+.auth-switch {
+    margin-top: 22px;
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 5px;
+
+    color: #777285;
+
+    font-size: 13px;
+}
+
+.auth-switch button {
+    border: 0;
+
+    padding: 0;
+
+    color: #a87aff;
 
     background: transparent;
 
-    color: #334155;
-
-    font-size: 14px;
-    font-weight: 500;
-
-    text-align: left;
-
-    cursor: pointer;
-
-    transition:
-            background 0.15s ease,
-            color 0.15s ease;
+    font-weight: 700;
 }
 
-.task-dropdown button:hover {
-    background: #f1f5f9;
-    color: #0f172a;
-}
+/* =========================================================
+   RESPONSIVE
+========================================================= */
 
+@media (max-width: 900px) {
 
-/* Delete button */
-
-.task-dropdown button.danger {
-    color: #dc2626;
-}
-
-.task-dropdown button.danger:hover {
-    background: #fef2f2;
-    color: #b91c1c;
-}
-
-
-/* ========================================
-   TASK CARD ANIMATION
-======================================== */
-
-.todo-card {
-    transition:
-            transform 0.2s ease,
-            box-shadow 0.2s ease,
-            border-color 0.2s ease;
-}
-
-.todo-card:hover {
-    transform: translateY(-2px);
-
-    box-shadow:
-            0 8px 24px rgba(15, 23, 42, 0.08);
-}
-
-
-/* ========================================
-   COMPLETE ANIMATION
-======================================== */
-
-.custom-checkbox {
-    transition:
-            transform 0.2s ease,
-            background 0.2s ease,
-            border-color 0.2s ease;
-}
-
-.custom-checkbox:active {
-    transform: scale(0.85);
-}
-
-.custom-checkbox.checked {
-    animation: checkboxPop 0.3s ease-out;
-}
-
-@keyframes checkboxPop {
-    0% {
-        transform: scale(0.7);
+    .sidebar {
+        width: 190px;
     }
 
-    60% {
-        transform: scale(1.15);
+    .main {
+        padding: 40px 30px;
     }
 
-    100% {
-        transform: scale(1);
+    .stats {
+        grid-template-columns:
+      repeat(2, 1fr);
+    }
+
+    .todo-card {
+        flex-wrap: wrap;
+    }
+
+    .todo-status {
+        margin-left: 43px;
     }
 }
 
+@media (max-width: 650px) {
 
-/* ========================================
-   COMPLETED TASK
-======================================== */
-
-.todo-card.completed {
-    animation: taskComplete 0.35s ease-out;
-}
-
-@keyframes taskComplete {
-    0% {
-        transform: scale(1);
+    .app {
+        display: block;
     }
 
-    50% {
-        transform: scale(1.015);
+    .sidebar {
+        position: static;
+
+        width: 100%;
+
+        min-height: auto;
+
+        padding: 15px;
+
+        border-right: 0;
+
+        border-bottom:
+                1px solid
+                rgba(255, 255, 255, 0.06);
     }
 
-    100% {
-        transform: scale(1);
-    }
-}
-
-.todo-card.completed .todo-content h3 {
-    transition: color 0.25s ease;
-}
-
-
-/* ========================================
-   BUTTON PRESS EFFECT
-======================================== */
-
-.complete-button,
-.give-up-button,
-.new-task-button,
-.create-button,
-.cancel-button,
-.back-to-work-button {
-    transition:
-            transform 0.15s ease,
-            box-shadow 0.15s ease,
-            opacity 0.15s ease;
-}
-
-.complete-button:active,
-.give-up-button:active,
-.new-task-button:active,
-.create-button:active,
-.cancel-button:active,
-.back-to-work-button:active {
-    transform: scale(0.97);
-}
-
-
-/* ========================================
-   MODAL ANIMATION
-======================================== */
-
-.modal-overlay {
-    animation: overlayIn 0.2s ease-out;
-}
-
-.modal,
-.motivation-modal,
-.history-modal {
-    animation: modalIn 0.22s ease-out;
-}
-
-@keyframes overlayIn {
-    from {
-        opacity: 0;
+    .logo {
+        padding: 0 5px 15px;
     }
 
-    to {
-        opacity: 1;
+    .navigation {
+        flex-direction: row;
+    }
+
+    .nav-item {
+        flex: 1;
+
+        justify-content: center;
+    }
+
+    .logout-button {
+        margin-top: 8px;
+    }
+
+    .sidebar-bottom {
+        display: none;
+    }
+
+    .main {
+        padding: 30px 18px 70px;
+    }
+
+    .top-bar {
+        gap: 20px;
+    }
+
+    .stats {
+        grid-template-columns:
+      repeat(2, 1fr);
+    }
+
+    .todo-card {
+        align-items: flex-start;
+    }
+
+    .todo-status {
+        margin-left: 43px;
     }
 }
 
-@keyframes modalIn {
-    from {
-        opacity: 0;
-        transform: translateY(12px) scale(0.97);
+@media (max-width: 450px) {
+
+    .navigation .nav-item {
+        font-size: 0;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-
-/* ========================================
-   HISTORY ITEM
-======================================== */
-
-.history-item {
-    transition:
-            background 0.2s ease,
-            transform 0.2s ease;
-}
-
-.history-item:hover {
-    background: #f8fafc;
-    transform: translateX(3px);
-}
-
-
-/* ========================================
-   ERROR
-======================================== */
-
-.error-message {
-    animation: errorIn 0.25s ease-out;
-}
-
-@keyframes errorIn {
-    from {
-        opacity: 0;
-        transform: translateY(-5px);
+    .navigation .nav-item span {
+        font-size: 18px;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    .stats {
+        grid-template-columns:
+      1fr 1fr;
+
+        gap: 8px;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .stat-card strong {
+        font-size: 24px;
+    }
+
+    .top-bar {
+        flex-direction: column;
+    }
+
+    .new-task-button {
+        width: 100%;
+    }
+
+    .auth-card {
+        padding: 30px 22px;
     }
 }

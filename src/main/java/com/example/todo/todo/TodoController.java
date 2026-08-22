@@ -4,13 +4,18 @@ import com.example.todo.todo.dto.CreateTodoRequest;
 import com.example.todo.todo.dto.TodoResponse;
 import com.example.todo.todo.dto.UpdateTodoRequest;
 import jakarta.validation.Valid;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
 import java.time.LocalDate;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/todos")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(
+        origins = "http://localhost:5173",
+        allowCredentials = "true"
+)
 public class TodoController {
 
     private final TodoService todoService;
@@ -20,23 +25,30 @@ public class TodoController {
     ) {
         this.todoService = todoService;
     }
-    // GET ALL
+
+    // =====================================================
+    // GET CURRENT USER'S TODOS
+    // =====================================================
 
     @GetMapping
-    public List<TodoResponse> getTodos() {
-
-        return todoService.getTodos();
+    public List<TodoResponse> getMyTodos(
+            Authentication authentication
+    ) {
+        return todoService.getTodosForUser(
+                authentication.getName()
+        );
     }
 
+    // =====================================================
     // GET BY ID
+    // =====================================================
 
-        @GetMapping("/{id}")
-        public TodoResponse getTodoById(
-                @PathVariable Long id
-        ) {
-
-            return todoService.getTodoById(id);
-        }
+    @GetMapping("/{id}")
+    public TodoResponse getTodoById(
+            @PathVariable Long id
+    ) {
+        return todoService.getTodoById(id);
+    }
 
     // =====================================================
     // GET BY USER
@@ -46,29 +58,29 @@ public class TodoController {
     public List<TodoResponse> getTodosByUser(
             @PathVariable Long userId
     ) {
-
         return todoService.getTodosByUser(
                 userId
         );
     }
 
-
+    // =====================================================
     // HISTORY
-
+    // =====================================================
 
     @GetMapping("/user/{userId}/history")
     public List<TodoResponse> getTodosByDate(
             @PathVariable Long userId,
             @RequestParam LocalDate date
     ) {
-
         return todoService.getTodosByDate(
                 userId,
                 date
         );
     }
-    // CREATE
 
+    // =====================================================
+    // CREATE
+    // =====================================================
 
     @PostMapping
     public TodoResponse createTodo(
@@ -76,7 +88,6 @@ public class TodoController {
             @RequestBody
             CreateTodoRequest request
     ) {
-
         return todoService.createTodo(
                 request
         );
@@ -93,7 +104,6 @@ public class TodoController {
             @RequestBody
             UpdateTodoRequest request
     ) {
-
         return todoService.updateTodo(
                 id,
                 request
@@ -108,7 +118,6 @@ public class TodoController {
     public void deleteTodo(
             @PathVariable Long id
     ) {
-
         todoService.deleteTodo(id);
     }
 }
