@@ -47,7 +47,7 @@ public class SecurityConfig {
                         ).permitAll()
 
                         // Những API còn lại bắt buộc JWT
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
 
                 .addFilterBefore(
