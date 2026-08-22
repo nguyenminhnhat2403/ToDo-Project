@@ -7,6 +7,7 @@ import com.example.todo.todo.dto.UpdateTodoRequest;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,15 +38,15 @@ public class TodoService {
             CreateTodoRequest request
     ) {
 
-        User user = userRepository.findById(
-                request.getUserId()
-        ).orElseThrow(() ->
-                new RuntimeException(
-                        "User with id "
-                                + request.getUserId()
-                                + " not found"
-                )
-        );
+        String email = SecurityContextHolder
+                .getContext()
+                .getAuthentication()
+                .getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
 
         Todo todo = new Todo(
                 request.getTitle(),

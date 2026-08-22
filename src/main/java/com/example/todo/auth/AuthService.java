@@ -5,23 +5,30 @@ import com.example.todo.auth.dto.RegisterRequest;
 import com.example.todo.security.JwtService;
 import com.example.todo.user.User;
 import com.example.todo.user.UserRepository;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
 
     public AuthService(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            JwtService jwtService
+            JwtService jwtService,
+            AuthenticationManager authenticationManager
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.authenticationManager = authenticationManager;
     }
 
     public LoginResponse login(
@@ -29,27 +36,20 @@ public class AuthService {
             String password
     ) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Invalid email or password"
+        Authentication authentication =
+                authenticationManager.authenticate(
+                        new UsernamePasswordAuthenticationToken(
+                                email,
+                                password
                         )
                 );
 
-        if (!passwordEncoder.matches(
-                password,
-                user.getPassword()
-        )) {
-
-            throw new RuntimeException(
-                    "Invalid email or password"
-            );
-        }
-
-        String token =
-                jwtService.generateToken(
-                        user.getEmail()
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
                 );
+
+        String token = jwtService.generateToken(user.getEmail());
 
         return new LoginResponse(
                 user.getId(),
@@ -61,15 +61,19 @@ public class AuthService {
 
     public User register(RegisterRequest request) {
 
-        User user = new User();
-        if(userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("Email is already exist");
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email is already exists");
         }
+
+        User user = new User();
+
         user.setEmail(request.getEmail());
         user.setName(request.getName());
 
         user.setPassword(
-                passwordEncoder.encode(request.getPassword())
+                passwordEncoder.encode(
+                        request.getPassword()
+                )
         );
 
         return userRepository.save(user);

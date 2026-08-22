@@ -10,8 +10,8 @@ public class CreateTodoRequest {
 
     private String description;
 
-    @NotNull
-    private Long userId;
+//    @NotNull
+//    private Long userId;
 
     public CreateTodoRequest() {
     }
@@ -24,9 +24,9 @@ public class CreateTodoRequest {
         return description;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
+//    public Long getUserId() {
+//        return userId;
+//    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -36,7 +36,7 @@ public class CreateTodoRequest {
         this.description = description;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+//    public void setUserId(Long userId) {
+//        this.userId = userId;
+//    }
 }
