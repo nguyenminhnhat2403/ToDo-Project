@@ -1,19 +1,11 @@
 package com.example.todo.auth;
 
-import com.example.todo.user.User;
-import com.example.todo.user.UserService;
+
 import com.example.todo.auth.dto.LoginRequest;
 import com.example.todo.auth.dto.LoginResponse;
 import com.example.todo.auth.dto.RegisterRequest;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.SecurityContextRepository;
+import com.example.todo.user.User;
+import com.example.todo.user.dto.UserResponse;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,49 +16,17 @@ import org.springframework.web.bind.annotation.*;
 )
 public class AuthController {
 
-    private final UserService userService;
-    private final AuthenticationManager authenticationManager;
+    private final AuthService authService;
 
-    private final SecurityContextRepository securityContextRepository =
-            new HttpSessionSecurityContextRepository();
-
-    public AuthController(
-            UserService userService,
-            AuthenticationManager authenticationManager
-    ) {
-        this.userService = userService;
-        this.authenticationManager = authenticationManager;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
     }
 
     @PostMapping("/login")
     public LoginResponse login(
-            @RequestBody LoginRequest request,
-            HttpServletRequest httpRequest,
-            HttpServletResponse httpResponse
+            @RequestBody LoginRequest request
     ) {
-
-        Authentication authentication =
-                authenticationManager.authenticate(
-                        new UsernamePasswordAuthenticationToken(
-                                request.getEmail(),
-                                request.getPassword()
-                        )
-                );
-
-        SecurityContext context =
-                SecurityContextHolder.createEmptyContext();
-
-        context.setAuthentication(authentication);
-
-        SecurityContextHolder.setContext(context);
-
-        securityContextRepository.saveContext(
-                context,
-                httpRequest,
-                httpResponse
-        );
-
-        return userService.login(
+        return authService.login(
                 request.getEmail(),
                 request.getPassword()
         );
@@ -76,6 +36,6 @@ public class AuthController {
     public User register(
             @RequestBody RegisterRequest request
     ) {
-        return userService.register(request);
+        return authService.register(request);
     }
 }
