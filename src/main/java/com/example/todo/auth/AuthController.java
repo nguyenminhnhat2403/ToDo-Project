@@ -1,8 +1,10 @@
-package com.example.todo.user;
+package com.example.todo.auth;
 
-import com.example.todo.user.dto.LoginRequest;
-import com.example.todo.user.dto.LoginResponse;
-import com.example.todo.user.dto.RegisterRequest;
+import com.example.todo.user.User;
+import com.example.todo.user.UserService;
+import com.example.todo.auth.dto.LoginRequest;
+import com.example.todo.auth.dto.LoginResponse;
+import com.example.todo.auth.dto.RegisterRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.AuthenticationManager;

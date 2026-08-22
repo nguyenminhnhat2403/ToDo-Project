@@ -1,4 +1,4 @@
-package com.example.todo.user.dto;
+package com.example.todo.auth.dto;
 
 public class RegisterRequest {
 

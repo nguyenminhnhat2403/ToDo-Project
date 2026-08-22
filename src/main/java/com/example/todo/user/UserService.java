@@ -1,9 +1,10 @@
 package com.example.todo.user;
 
+import com.example.todo.auth.dto.LoginResponse;
+import com.example.todo.auth.dto.RegisterRequest;
+import com.example.todo.security.JwtService;
 import com.example.todo.user.dto.*;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,19 +17,22 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserDTOMapper userDTOMapper;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
-
+//    private final AuthenticationManager authenticationManager;
+//    private final JwtService jwtService;
 
     public UserService(
             UserRepository userRepository,
             UserDTOMapper userDTOMapper,
-            PasswordEncoder passwordEncoder,
-            AuthenticationManager authenticationManager
+          PasswordEncoder passwordEncoder
+//            ,
+//            AuthenticationManager authenticationManager,
+//            JwtService jwtService
     ) {
         this.userRepository = userRepository;
         this.userDTOMapper = userDTOMapper;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager;
+//        this.authenticationManager = authenticationManager;
+//        this.jwtService = jwtService;
     }
 
     public UserResponse createUser(CreateUserRequest request) {
@@ -99,32 +103,55 @@ public class UserService {
 
         userRepository.delete(user);
     }
-    public LoginResponse login(String email, String password) {
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new RuntimeException("User not found")
-                );
-
-        return new LoginResponse(
-                user.getId(),
-                user.getEmail(),
-                user.getName()
-        );
-    }
-    public User register(RegisterRequest request) {
-
-        User user = new User();
-
-        user.setEmail(request.getEmail());
-        user.setName(request.getName());
-
-        user.setPassword(
-                passwordEncoder.encode(request.getPassword())
-        );
-
-        return userRepository.save(user);
-    }
+//    public LoginResponse login(
+//            String email,
+//            String password
+//    ) {
+//
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() ->
+//                        new RuntimeException(
+//                                "Invalid email or password"
+//                        )
+//                );
+//
+//        if (!passwordEncoder.matches(
+//                password,
+//                user.getPassword()
+//        )) {
+//
+//            throw new RuntimeException(
+//                    "Invalid email or password"
+//            );
+//        }
+//
+//        String token =
+//                jwtService.generateToken(
+//                        user.getEmail()
+//                );
+//
+//        return new LoginResponse(
+//                user.getId(),
+//                user.getEmail(),
+//                user.getName(),
+//                token
+//        );
+//    }
+//    public User register(RegisterRequest request) {
+//
+//        User user = new User();
+//        if(userRepository.existsByEmail(request.getEmail())) {
+//            throw new RuntimeException("Email is already exist");
+//        }
+//        user.setEmail(request.getEmail());
+//        user.setName(request.getName());
+//
+//        user.setPassword(
+//                passwordEncoder.encode(request.getPassword())
+//        );
+//
+//        return userRepository.save(user);
+//    }
 
 //    private UserResponse toResponse(User user) {
 //
